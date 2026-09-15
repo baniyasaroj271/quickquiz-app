@@ -33,6 +33,7 @@ body::before {
 .site-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 72px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 700; text-decoration: none; }
 .brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 9px; color: var(--white); background: var(--green); font-family: "Space Grotesk", sans-serif; }
+.header-links { display: flex; align-items: center; gap: 18px; }
 .header-link { color: var(--green-dark); font-size: .84rem; font-weight: 700; text-decoration: none; }
 .header-link:hover { text-decoration: underline; }
 .quiz-panel { padding: clamp(28px, 5vw, 58px); border: 1px solid rgba(255, 255, 255, .8); border-radius: 18px; background: rgba(251, 250, 247, .96); box-shadow: 0 22px 60px rgba(42, 75, 65, .12); }
@@ -174,6 +175,7 @@ tbody tr:hover, tbody tr.current-user { background: var(--mint); }
 	.leaderboard-panel { padding: 25px 20px 28px; border-radius: 14px; }
 	.username-controls { display: grid; }
 	.admin-heading { display: block; }
+	.header-links { gap: 12px; }
 	.admin-heading > .button { display: inline-flex; margin-top: 20px; }
 	.admin-nav span { display: none; }
 	.admin-auth-panel, .admin-card { padding: 25px 20px 28px; border-radius: 14px; }

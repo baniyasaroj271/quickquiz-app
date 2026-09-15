@@ -2,6 +2,7 @@ from pathlib import Path
 import json
 import hmac
 import os
+import random
 import sqlite3
 import time
 from functools import wraps
@@ -206,7 +207,28 @@ def start_quiz():
     if not username:
         return jsonify({"error": "Please enter a username."}), 400
     session["username"] = username
+    session.pop("quiz_submitted", None)
+    session["quiz_started_at"] = time.time()
+    session.pop("question_order", None)
+    session.pop("option_orders", None)
     return jsonify({"ok": True, "username": username})
+
+
+def create_quiz_order(connection):
+    rows = connection.execute(
+        "SELECT id, options_json FROM questions WHERE quiz_name = ? ORDER BY id", (QUIZ_NAME,)
+    ).fetchall()
+    question_ids = [row["id"] for row in rows]
+    random.SystemRandom().shuffle(question_ids)
+    option_orders = {}
+    option_counts = {row["id"]: len(json.loads(row["options_json"])) for row in rows}
+    for question_id in question_ids:
+        option_count = option_counts[question_id]
+        indexes = list(range(option_count))
+        random.SystemRandom().shuffle(indexes)
+        option_orders[str(question_id)] = indexes
+    session["question_order"] = question_ids
+    session["option_orders"] = option_orders
 
 
 @app.get("/api/questions")
@@ -216,16 +238,30 @@ def questions():
     started_at = session["quiz_started_at"]
     remaining_seconds = max(0, QUIZ_DURATION_SECONDS - int(time.time() - started_at))
     connection = get_connection()
-    rows = connection.execute("SELECT id, question_text, options_json FROM questions ORDER BY id").fetchall()
+    if not session.get("question_order"):
+        create_quiz_order(connection)
+    question_order = session["question_order"]
+    option_orders = session.get("option_orders", {})
+    placeholders = ",".join("?" for _ in question_order)
+    rows_by_id = {
+        row["id"]: row for row in connection.execute(
+            f"SELECT id, question_text, options_json FROM questions WHERE id IN ({placeholders}) AND quiz_name = ?",
+            (*question_order, QUIZ_NAME),
+        ).fetchall()
+    }
     connection.close()
     return jsonify({
         "questions": [
             {
-                "id": row["id"],
-                "text": row["question_text"],
-                "options": [{"id": index, "text": text} for index, text in enumerate(json.loads(row["options_json"]))],
+                "id": rows_by_id[question_id]["id"],
+                "text": rows_by_id[question_id]["question_text"],
+                "options": [
+                    {"id": index, "text": json.loads(rows_by_id[question_id]["options_json"])[index]}
+                    for index in option_orders.get(str(question_id), range(4))
+                ],
             }
-            for row in rows
+            for question_id in question_order
+            if question_id in rows_by_id
         ],
         "remaining_seconds": remaining_seconds,
     })
@@ -242,7 +278,19 @@ def submit():
     username = session.get("username", "Guest")
     completion_seconds = min(QUIZ_DURATION_SECONDS, max(0, round(time.time() - started_at)))
     connection = get_connection()
-    rows = connection.execute("SELECT id, options_json, correct_option FROM questions ORDER BY id").fetchall()
+    question_order = session.get("question_order", [])
+    if not question_order:
+        connection.close()
+        return jsonify({"error": "Your quiz session has expired. Please start a new quiz."}), 400
+    placeholders = ",".join("?" for _ in question_order)
+    rows_by_id = {
+        row["id"]: row for row in connection.execute(
+            f"SELECT id, question_text, options_json, correct_option "
+            f"FROM questions WHERE id IN ({placeholders}) AND quiz_name = ?",
+            (*question_order, QUIZ_NAME),
+        ).fetchall()
+    }
+    rows = [rows_by_id[question_id] for question_id in question_order if question_id in rows_by_id]
     score = 0
     unanswered = 0
     details = []
@@ -257,7 +305,7 @@ def submit():
         if not valid_answer:
             unanswered += 1
         details.append({
-            "question": connection.execute("SELECT question_text FROM questions WHERE id = ?", (row["id"],)).fetchone()[0],
+            "question": row["question_text"],
             "selected_answer": options[int(answer)] if valid_answer else None,
             "correct_answer": options[row["correct_option"]],
             "is_correct": is_correct,
