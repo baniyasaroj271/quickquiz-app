@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Dashboard | Knowledge Check</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+	<main class="app-shell admin-shell">
+		<header class="site-header">
+			<a class="brand" href="/"><span class="brand-mark">K</span><span>Knowledge Check</span></a>
+			<nav class="admin-nav"><span>Signed in as admin</span><a href="/admin/logout">Log out</a></nav>
+		</header>
+		<div class="admin-heading"><div><p class="eyebrow">QUESTION BANK</p><h1>Admin dashboard.</h1><p class="subtitle">Add, edit, and remove quiz questions.</p></div><a class="button secondary" href="/">View quiz &rarr;</a></div>
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% for category, message in messages %}<p class="flash-message {{ category }}">{{ message }}</p>{% endfor %}
+		{% endwith %}
+
+		<section class="admin-card" aria-labelledby="form-title">
+			<h2 id="form-title">{{ 'Edit question' if editing else 'Add question' }}</h2>
+			<form class="admin-form" method="post" action="{{ url_for('edit_question', question_id=editing.id) if editing else url_for('add_question') }}">
+				<label for="quiz_name">Quiz or category</label>
+				<input id="quiz_name" name="quiz_name" value="{{ editing.quiz_name if editing else '' }}" required>
+				<label for="question_text">Question text</label>
+				<textarea id="question_text" name="question_text" rows="3" required>{{ editing.question_text if editing else '' }}</textarea>
+				<div class="admin-options">
+					{% for letter in ['a', 'b', 'c', 'd'] %}
+						<div><label for="option_{{ letter }}">Option {{ letter|upper }}</label><input id="option_{{ letter }}" name="option_{{ letter }}" value="{{ editing.options[loop.index0] if editing else '' }}" required></div>
+					{% endfor %}
+				</div>
+				<fieldset class="correct-choice"><legend>Correct answer</legend>
+					{% for letter in ['A', 'B', 'C', 'D'] %}<label><input type="radio" name="correct_answer" value="{{ loop.index0 }}" {% if editing and editing.correct_option == loop.index0 %}checked{% endif %} required> {{ letter }}</label>{% endfor %}
+				</fieldset>
+				<div class="admin-form-actions"><button class="button primary" type="submit">{{ 'Save changes' if editing else 'Add question' }}</button>{% if editing %}<a class="button secondary" href="/admin">Cancel</a>{% endif %}</div>
+			</form>
+		</section>
+
+		{% if not editing %}<section class="question-list" aria-labelledby="questions-title"><div class="list-heading"><h2 id="questions-title">Existing questions <span>{{ questions|length }}</span></h2></div>{% for question in questions %}<article class="question-row"><div class="question-row-content"><span class="question-category">{{ question.quiz_name }}</span><h3>{{ question.question_text }}</h3><ol>{% for option in question.options %}<li class="{% if loop.index0 == question.correct_option %}correct-option{% endif %}">{{ option }}</li>{% endfor %}</ol></div><div class="question-actions"><a class="button secondary" href="{{ url_for('edit_question', question_id=question.id) }}">Edit</a><form method="post" action="{{ url_for('delete_question', question_id=question.id) }}" data-delete-form><button class="button danger" type="submit">Delete</button></form></div></article>{% else %}<p class="status-message">No questions found.</p>{% endfor %}</section>{% endif %}
+	</main>
+	<script src="{{ url_for('static', filename='admin.js') }}"></script>
+</body>
+</html>

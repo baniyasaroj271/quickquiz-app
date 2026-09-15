@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Login | Knowledge Check</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+	<main class="app-shell admin-auth-shell">
+		<section class="admin-auth-panel" aria-labelledby="login-title">
+			<a class="brand" href="/"><span class="brand-mark">K</span><span>Knowledge Check</span></a>
+			<p class="eyebrow">RESTRICTED AREA</p>
+			<h1 id="login-title">Admin sign in.</h1>
+			<p class="subtitle">Manage your question bank securely.</p>
+			{% with messages = get_flashed_messages(with_categories=true) %}
+				{% for category, message in messages %}<p class="flash-message {{ category }}">{{ message }}</p>{% endfor %}
+			{% endwith %}
+			<form class="admin-form login-form" method="post">
+				<label for="username">Username</label>
+				<input id="username" name="username" autocomplete="username" required>
+				<label for="password">Password</label>
+				<input id="password" name="password" type="password" autocomplete="current-password" required>
+				<button class="button primary" type="submit">Sign in <span aria-hidden="true">&rarr;</span></button>
+			</form>
+		</section>
+	</main>
+</body>
+</html>

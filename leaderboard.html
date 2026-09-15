@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Leaderboard | Knowledge Check</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+	<main class="app-shell leaderboard-shell">
+		<header class="site-header">
+			<a class="brand" href="/" aria-label="Knowledge Check home"><span class="brand-mark">K</span><span>Knowledge Check</span></a>
+			<a class="header-link" href="/">Back to quiz &rarr;</a>
+		</header>
+		<section class="leaderboard-panel" aria-labelledby="leaderboard-title">
+			<div class="leaderboard-heading">
+				<div><p class="eyebrow">QUIZ / RESULTS</p><h1 id="leaderboard-title">Leaderboard</h1><p class="subtitle">The fastest high scores rise to the top.</p></div>
+				<label class="quiz-filter">Quiz<select id="quiz-filter"><option value="General Knowledge">General Knowledge</option></select></label>
+			</div>
+			<div id="current-rank" class="current-rank" hidden></div>
+			<div id="leaderboard-loading" class="status-message">Loading leaderboard...</div>
+			<div id="leaderboard-empty" class="status-message" hidden>No completed quizzes yet. Be the first to play.</div>
+			<div id="leaderboard-table-wrap" class="leaderboard-table-wrap" hidden>
+				<table><thead><tr><th>Rank</th><th>Username</th><th>Score</th><th>Percentage</th><th>Completion time</th></tr></thead><tbody id="leaderboard-body"></tbody></table>
+			</div>
+		</section>
+	</main>
+	<script src="{{ url_for('static', filename='leaderboard.js') }}"></script>
+</body>
+</html>

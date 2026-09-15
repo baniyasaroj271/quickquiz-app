@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Knowledge Check | Online Quiz</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+	<main class="app-shell">
+		<header class="site-header">
+			<a class="brand" href="/" aria-label="Knowledge Check home">
+				<span class="brand-mark">K</span>
+				<span>Knowledge Check</span>
+			</a>
+			<a class="header-link" href="/leaderboard">View leaderboard &rarr;</a>
+		</header>
+
+		<section class="quiz-panel" aria-labelledby="quiz-title">
+			<div class="intro-row">
+				<div>
+					<p class="eyebrow">QUIZ / GENERAL KNOWLEDGE</p>
+					<h1 id="quiz-title">Test your thinking.</h1>
+					<p class="subtitle">Take it one question at a time. Your answers are saved as you go.</p>
+				</div>
+				<div class="intro-actions">
+					<div id="timer-badge" class="timer-badge" aria-live="polite" aria-label="Time remaining">
+						<span class="score-label">TIME LEFT</span>
+						<strong id="quiz-timer">10:00</strong>
+						<span id="timer-warning" class="timer-warning" hidden>1 minute remaining</span>
+					</div>
+					<div class="score-badge" aria-label="Quiz progress">
+						<span class="score-label">PROGRESS</span>
+						<strong id="progress-percent">0%</strong>
+					</div>
+				</div>
+			</div>
+			<form id="username-form" class="username-form">
+				<label for="username-input">Your name</label>
+				<div class="username-controls">
+					<input id="username-input" name="username" maxlength="30" placeholder="Enter a username" autocomplete="nickname" required>
+					<button class="button primary" type="submit">Start quiz <span aria-hidden="true">&rarr;</span></button>
+				</div>
+				<p id="username-error" class="form-error" hidden></p>
+			</form>
+
+			<div id="loading-state" class="status-message" hidden>Loading your questions...</div>
+			<div id="error-state" class="status-message error" role="alert" hidden></div>
+
+			<div id="quiz-content" hidden>
+				<div class="progress-track" aria-hidden="true"><span id="progress-bar"></span></div>
+				<div class="question-meta">
+					<span id="question-count">Question 1 of 10</span>
+					<span id="answered-count">0 answered</span>
+				</div>
+
+				<form id="question-form">
+					<fieldset class="question-card">
+						<legend id="question-text">Question text</legend>
+						<div id="options-list" class="options-list"></div>
+					</fieldset>
+
+					<div class="controls">
+						<button id="back-button" class="button secondary" type="button">Back</button>
+						<button id="next-button" class="button primary" type="button">Next question <span aria-hidden="true">&rarr;</span></button>
+						<button id="submit-button" class="button primary" type="submit" hidden>Submit quiz <span aria-hidden="true">&rarr;</span></button>
+					</div>
+				</form>
+			</div>
+
+			<section id="result-state" class="result-state" hidden aria-live="polite">
+				<span class="result-icon">&#10003;</span>
+				<p class="eyebrow">QUIZ COMPLETE</p>
+				<h2 id="result-title">Nice work.</h2>
+				<p id="result-message"></p>
+				<div class="result-summary" aria-label="Quiz results">
+					<div><strong id="result-total">0</strong><span>Total questions</span></div>
+					<div><strong id="result-correct">0</strong><span>Correct</span></div>
+					<div><strong id="result-incorrect">0</strong><span>Incorrect</span></div>
+					<div><strong id="result-unanswered">0</strong><span>Unanswered</span></div>
+				</div>
+				<div class="final-score">
+					<span>FINAL SCORE</span>
+					<strong id="result-percentage">0%</strong>
+				</div>
+				<div id="answer-review" class="answer-review"></div>
+				<button id="restart-button" class="button primary" type="button">Try again</button>
+			</section>
+		</section>
+	</main>
+	<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
